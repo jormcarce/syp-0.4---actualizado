@@ -2,7 +2,7 @@
 /* Copyright (c) 2009 Arnaud Renevier, Inc, published under the modified BSD
    license. */
 
-    $language_list = Array ();
+$language_list = Array ();
 
 function ptrans ($str) {
     echo trans ($str);
@@ -65,7 +65,7 @@ function other_languages ($current_lang) {
         } else  {
             array_push ($links, "<a href=\"$script.$lang.php\" title=\"$lang_name\" lang=\"$lang\" hreflang=\"$lang\">$lang_name</a>");
         }
-    }                                                                                                                      
+    }
     echo "<div id=\"other-language\">" . join("", $links) . "</div>\n";
 }
 
@@ -79,8 +79,8 @@ foreach (scandir ("inc/i10n/") as $entry) {
     }
 }
 
-// detects language                                                                                                         
-$fname = pathinfo ($_SERVER ["SCRIPT_NAME"], PATHINFO_FILENAME);                                                            
+// detects language
+$fname = pathinfo ($_SERVER ["SCRIPT_NAME"], PATHINFO_FILENAME);
 $lang = ltrim (strstr ($fname, '.'), '.');
 if ((!isset ($lang)) ||
     (strlen ($lang) == 0) ||

@@ -4,6 +4,8 @@
    license. */
 
 // only execute from command line
+// $argc = number of arguments: int>=1 (#1 is the name of the script/file)
+// $argv = array of arguments: array ($argv[0] is the name of the script/file)
 if (!(isset ($argc)) || !(isset ($argv))) {
     exit (0);
 }
