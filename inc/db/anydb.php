@@ -16,32 +16,18 @@ class feature {
 
     function __construct ($id, $lon, $lat, $imgpath, $title, $description, $date, $user) {
         $this->imgpath = $imgpath;
-
-        // id
         if (isset ($id)) {
             $this->id = $id;
         }
-
-        // title
         $this->title = $title;
-
-        // description
         $this->description = $description;
-
-        // date
         $this->date = $date;
-
-        // user
         $this->user = $user;
-
-        // longitude
         if (!isset ($lon) || !is_numeric ($lon) ||
              ($lon < -180) || ($lon > 180)) {
             throw new Exception (self::err_lonlat_invalid);
         }
         $this->lon = $lon;
-
-        // latitude
         if (!isset ($lat) || !is_numeric ($lat) ||
              ($lat < -90) || ($lat > 90)) {
             throw new Exception (self::err_lonlat_invalid);
@@ -77,7 +63,7 @@ interface anydbConnection {
     public function users_table_exists();
 
     /*
-     * create users table; 
+     * create users table;
      * throws an err_query error in case users table already exists.
      */
     public function create_users_table();

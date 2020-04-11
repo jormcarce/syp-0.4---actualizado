@@ -9,19 +9,19 @@ class mysqlConnection implements anydbConnection {
     var $dbprefix = null;
 
     public function connect ($host, $user, $pwd, $dbname, $dbprefix) {
-        if (!function_exists ("mysql_connect")) {
+        if (!function_exists ("mysqli_connect")) {
             throw new Exception (anydbConnection::err_driver_unavailable);
         }
         if ($this->link) { // connection has already been opened
             return;
         }
-        $this->link = @mysql_connect ($host,$user,$pwd,true);
+        $this->link = @mysqli_connect ($host,$user,$pwd,$dbname);
         if (!$this->link) {
             throw new Exception (anydbConnection::err_connection);
         }
-        if (!mysql_select_db ($dbname, $this->link)) {
+        /*if (!mysql_select_db ($dbname, $this->link)) {
             throw new Exception (anydbConnection::err_unknown_database);
-        }
+        }*/
         $this->dbprefix = $dbprefix;
     }
 
@@ -68,10 +68,10 @@ class mysqlConnection implements anydbConnection {
         }
         $usrname_escaped = mysql_real_escape_string ($user_name);
         if ($this->user_exists ($user_name)) {
-            $query = sprintf ("UPDATE %susers SET pwd='%s' WHERE name like '%s';", 
+            $query = sprintf ("UPDATE %susers SET pwd='%s' WHERE name like '%s';",
                     $this->dbprefix, md5 ($pwd), $usrname_escaped);
         } else {
-            $query = sprintf ("INSERT INTO %susers VALUES ('%s', '%s');", 
+            $query = sprintf ("INSERT INTO %susers VALUES ('%s', '%s');",
                                $this->dbprefix, $usrname_escaped, md5 ($pwd));
         }
         $this->_execute_query ($query);
@@ -80,7 +80,7 @@ class mysqlConnection implements anydbConnection {
     public function checkpwdmd5 ($user_name, $pwd_md5) {
         $query = sprintf ("SELECT COUNT(*) FROM %susers WHERE name LIKE '%s'
                            AND pwd LIKE '%s';",
-                           $this->dbprefix, 
+                           $this->dbprefix,
                            mysql_real_escape_string ($user_name),
                            mysql_real_escape_string ($pwd_md5));
         $res = mysql_fetch_array ($this->_execute_query ($query), MYSQL_NUM);
@@ -97,9 +97,9 @@ class mysqlConnection implements anydbConnection {
         } catch (Exception $e) {}
         if (isset ($id)) {
             $query = sprintf ("UPDATE %sitems SET
-                                    imgpath='%s', 
-                                    title='%s', 
-                                    description='%s', 
+                                    imgpath='%s',
+                                    title='%s',
+                                    description='%s',
                                     location=GeomFromText('POINT(%s %s)')
                             WHERE id = '%s';",
                             $this->dbprefix,
@@ -114,8 +114,8 @@ class mysqlConnection implements anydbConnection {
         } else {
               $query = sprintf ("INSERT INTO %sitems
                               (imgpath, title, description, location, date, user)
-                                VALUES ('%s', '%s', '%s', 
-                               GeomFromText('POINT(%s %s)'), NOW(), '%s')", 
+                                VALUES ('%s', '%s', '%s',
+                               GeomFromText('POINT(%s %s)'), NOW(), '%s')",
                               $this->dbprefix,
                               mysql_real_escape_string ($feature->imgpath),
                               mysql_real_escape_string ($feature->title),
@@ -145,7 +145,7 @@ class mysqlConnection implements anydbConnection {
     public function getfeature ($id) {
         $query = sprintf ("SELECT id, imgpath, title, description, AsText(location)
                            AS location, UNIX_TIMESTAMP(date) AS date, user
-                           FROM %sitems WHERE id = '%s';", 
+                           FROM %sitems WHERE id = '%s';",
                         $this->dbprefix, mysql_real_escape_string ($id));
         $row = mysql_fetch_assoc ($this->_execute_query ($query));
         if ($row === false) {
@@ -205,13 +205,13 @@ class mysqlConnection implements anydbConnection {
     }
 
     public function getdbname () {
-        return "Mysql";
+        return "Mariadb";
     }
 
     private function _tblexists ($tblname) {
         $query = sprintf ("SHOW TABLES LIKE '%s%s';",
                             $this->dbprefix, $tblname);
-        return mysql_num_rows ($this->_execute_query ($query)) == 1;
+        return mysqli_num_rows ($this->_execute_query ($query)) == 1;
     }
 
     private function _feature_frow_row ($row) {
@@ -233,13 +233,13 @@ class mysqlConnection implements anydbConnection {
     }
 
     private function _execute_query ($query) {
-        if (!function_exists ("mysql_query")) {
+        if (!function_exists ("mysqli_query")) {
             throw new Exception (anydbConnection::err_driver_unavailable);
         }
         if (!$this->link) {
             throw new Exception (anydbConnection::err_query);
         }
-        $res = mysql_query ($query, $this->link);
+        $res = mysqli_query ($this->link, $query);
         if ($res == false) {
             throw new Exception (anydbConnection::err_query);
         }

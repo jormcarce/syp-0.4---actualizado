@@ -14,10 +14,10 @@
       };
 
       function init () {
-        if (document.getElementById('db_host')) { 
+        if (document.getElementById('db_host')) {
             document.getElementById('db_host').focus();
             document.getElementById('db_host').select();
-        } else if (document.getElementById('admin_pass')) { 
+        } else if (document.getElementById('admin_pass')) {
             document.getElementById('admin_pass').focus();
             document.getElementById('admin_pass').select();
         }
@@ -36,7 +36,6 @@
       </script>
 </head>
 <body onload="init()">
-
 <?php
 
     define ("CONFIG_FILE", "./inc/settings.php");
@@ -68,9 +67,10 @@
             $title = "SYP";
         }
 
-        print '<form method="post" action="' . $_SERVER ["REQUEST_URI"] .  '"><fieldset>' . "\n";
+        print '<form method="post" action="' . htmlentities($_SERVER ["REQUEST_URI"]) . '"><fieldset>' . "\n";
         print '<legend>' . trans ("SYP configuration") . '</legend>' . "\n";
 
+        // create array $drivers to include all the database drivers filenames in db
         $drivers = array();
         $handle = opendir("./inc/db");
         if (!$handle) {
@@ -87,7 +87,6 @@
             array_push ($drivers, $driver_name);
         }
         closedir($handle);
-
 
         print '<div><label for="db_type" title="' .
               trans ("You can specify a database backend. Mysql is the most available for standard web hosting services.") .
@@ -136,10 +135,9 @@
         print '</fieldset></form>';
     }
 
-    if (file_exists (CONFIG_FILE)) {
+    if (file_exists (CONFIG_FILE)) { // settings.php has been set by user
         require_once (CONFIG_FILE);
     } else if (isset ($_POST["db_form_submit"])) { // user has submitted form
-
         function _unquote($gpc_str) {
            if (!isset ($gpc_str)) {
                return $gpc_str;
@@ -181,6 +179,7 @@
     } catch (Exception $e) {
         switch ($e->getMessage ()) {
             case anydbConnection::err_driver_unavailable:
+                echo("PASA POR AQUI");
                 par_error ($connection->getdbname() . ': ' . trans ('not supported'));
                 break;
             case anydbConnection::err_connection:
@@ -243,7 +242,7 @@
         par_success (trans ('Found user table.'));
     } else {
         $empty_pass = (isset ($_POST ["admin_pass"]) && (strlen ($_POST ["admin_pass"]) == 0));
-        if ($_POST ["admin_pass"]) {
+        if (isset($_POST ["admin_pass"])) {
             try {
                 $connection->create_users_table (true);
             } catch (Exception $e) {

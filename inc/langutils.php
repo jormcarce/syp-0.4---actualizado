@@ -8,6 +8,7 @@ function ptrans ($str) {
     echo trans ($str);
 }
 
+// returns $res from array $translations[language][$str] else returns $str
 function trans ($str) {
     global $translations, $lang;
 
@@ -19,11 +20,13 @@ function trans ($str) {
     }
 }
 
+//returns $lang based on HTTP_ACCEPT_LANGUAGE variable.
+//If no translation available returns $lang="en" for english default language.
 function parse_accept_language () {
     global $translations;
     $possibilities = array();
     if (isset ($_SERVER ['HTTP_ACCEPT_LANGUAGE'])) {
-        // set to lower case now
+        // set to lower case now in array $accepts
         $accepts = explode (',',
                         strtolower ($_SERVER ['HTTP_ACCEPT_LANGUAGE']));
         foreach ($accepts as $acc) {
@@ -49,6 +52,7 @@ function parse_accept_language () {
     return "en"; // nothing found; default to english
 }
 
+// echoes a div element with id="other-language" containing links to other languages scripts
 function other_languages ($current_lang) {
  $script = pathinfo ($_SERVER ["SCRIPT_NAME"], PATHINFO_FILENAME);
     $dotpos = strpos ($script, '.');
@@ -69,7 +73,8 @@ function other_languages ($current_lang) {
     echo "<div id=\"other-language\">" . join("", $links) . "</div>\n";
 }
 
-// load languages
+// load languages as array $translations [lang][string] from syp.php files
+// includes all the syp.php files in the language folders in inc/i10n/
 foreach (scandir ("inc/i10n/") as $entry) {
     if (is_dir ("inc/i10n/$entry") && ($entry [0] != ".")) {
         $target = "inc/i10n/$entry/syp.php";
@@ -80,6 +85,7 @@ foreach (scandir ("inc/i10n/") as $entry) {
 }
 
 // detects language
+// sets the value for $lang from file name or parse_accept_language function
 $fname = pathinfo ($_SERVER ["SCRIPT_NAME"], PATHINFO_FILENAME);
 $lang = ltrim (strstr ($fname, '.'), '.');
 if ((!isset ($lang)) ||
