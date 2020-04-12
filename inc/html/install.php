@@ -242,7 +242,7 @@
         par_success (trans ('Found user table.'));
     } else {
         $empty_pass = (isset ($_POST ["admin_pass"]) && (strlen ($_POST ["admin_pass"]) == 0));
-        if (isset($_POST ["admin_pass"])) {
+        if (isset($_POST ["admin_pass"])) { //added isset() condition
             try {
                 $connection->create_users_table (true);
             } catch (Exception $e) {
@@ -286,6 +286,7 @@
         par_success (trans ('Data table created.'));
     }
 
+    echo('CREAR DIRECTORIO UPLOAD...');
     safe_create_writable_dir (UPLOADDIR);
     safe_create_writable_dir (getthumbsdir ());
 

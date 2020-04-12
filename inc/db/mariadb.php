@@ -4,7 +4,7 @@
 
 require_once ("./inc/db/anydb.php");
 
-class mysqlConnection implements anydbConnection {
+class mariadbConnection implements anydbConnection {
     var $link = null;
     var $dbprefix = null;
 
@@ -31,8 +31,8 @@ class mysqlConnection implements anydbConnection {
     public function create_users_table () {
         $query = sprintf ("CREATE TABLE " .
                            "%susers (
-                            name VARCHAR(255) NOT NULL, pwd CHAR(32),
-                            PRIMARY KEY (name));", $this->dbprefix);
+                            name VARCHAR(32) NOT NULL, pwd CHAR(32),
+                            CONSTRAINT users_pk PRIMARY KEY (name));", $this->dbprefix);
         $this->_execute_query ($query);
     }
 
@@ -55,10 +55,10 @@ class mysqlConnection implements anydbConnection {
     }
 
     public function user_exists ($user_name) {
-        $usrname_escaped = mysql_real_escape_string ($user_name);
+        $usrname_escaped = mysqli_real_escape_string ($this->link, $user_name);
         $query = sprintf ("SELECT COUNT(*) FROM %susers WHERE name LIKE '%s';",
                         $this->dbprefix, $usrname_escaped);
-        $res = mysql_fetch_array ($this->_execute_query ($query), MYSQL_NUM);
+        $res = mysqli_fetch_array ($this->_execute_query ($query), MYSQLI_NUM);
         return ($res [0] == 1);
     }
 
@@ -66,7 +66,7 @@ class mysqlConnection implements anydbConnection {
         if (strlen ($pwd) == 0) {
             throw new Exception (anydbConnection::err_query);
         }
-        $usrname_escaped = mysql_real_escape_string ($user_name);
+        $usrname_escaped = mysqli_real_escape_string ($this->link, $user_name);
         if ($this->user_exists ($user_name)) {
             $query = sprintf ("UPDATE %susers SET pwd='%s' WHERE name like '%s';",
                     $this->dbprefix, md5 ($pwd), $usrname_escaped);
@@ -247,5 +247,5 @@ class mysqlConnection implements anydbConnection {
     }
 }
 
-$connection = new mysqlConnection();
+$connection = new mariadbConnection();
 ?>
